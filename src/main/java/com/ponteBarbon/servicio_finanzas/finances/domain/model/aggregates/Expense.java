@@ -27,6 +27,8 @@ public class Expense {
 
     private Double amount;
 
+    private Long idUser;
+
     public Expense() {}
 
     public Expense(String description, String type, Double amount) {

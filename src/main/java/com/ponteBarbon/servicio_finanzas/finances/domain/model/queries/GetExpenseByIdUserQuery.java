@@ -1,4 +1,4 @@
 package com.ponteBarbon.servicio_finanzas.finances.domain.model.queries;
 
-public record GetExpenseQuery() {
+public record GetExpenseByIdUserQuery(Long idUser) {
 }
