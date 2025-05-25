@@ -8,33 +8,35 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 /**
  * Representa un gasto del usuario
  * Una Expense es una entidad
  */
 
-@Entity
 @Getter
-@Setter
+@Entity
+
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String description;
-
     private ExpenseType type;
-
     private Double amount;
-
+    private Date dateOfExpense;
     private Long idUser;
 
     public Expense() {}
 
-    public Expense(String description, String type, Double amount) {
+
+    public Expense(String description, String type, Double amount, Date dateOfExpense) {
         this.description = description;
         this.type = ExpenseType.valueOf(type) ;
         this.amount = amount;
+        this.dateOfExpense = dateOfExpense;
+        this.idUser = 0L;
     }
 
 }
