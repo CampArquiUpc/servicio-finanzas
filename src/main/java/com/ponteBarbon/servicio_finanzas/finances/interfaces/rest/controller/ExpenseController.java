@@ -5,6 +5,7 @@ import com.google.cloud.speech.v1.*;
 
 import com.google.protobuf.ByteString;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.CreateExpenseCommand;
+import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.CreateExpensebyAudioCommand;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpenseByIdQuery;
 import com.ponteBarbon.servicio_finanzas.finances.domain.service.ExpenseService;
 import com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.resource.CreateExpenseResource;
@@ -15,6 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ws.schild.jave.Encoder;
+import ws.schild.jave.InputFormatException;
+import ws.schild.jave.MultimediaObject;
+import ws.schild.jave.encode.AudioAttributes;
+import ws.schild.jave.encode.EncodingAttributes;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,43 +41,15 @@ public class ExpenseController {
     }
 
     @PostMapping(value = "/audio",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> AddedExpenseByAudio(
+        public ResponseEntity<String> AddedExpenseByAudio(
             @RequestPart("file") MultipartFile file
     ) throws IOException {
 
-        File savedFile = new File("F:\\audios\\", file.getOriginalFilename());
-        savedFile.getParentFile().mkdirs();
-        file.transferTo(savedFile);
+        var createExpenseByAudioCommand = new CreateExpensebyAudioCommand(file);
 
+        var expense = expenseService.handle(createExpenseByAudioCommand);
 
-
-        SpeechSettings settings = SpeechSettings.newBuilder()
-                .setCredentialsProvider(() -> ServiceAccountCredentials
-                        .fromStream(new FileInputStream("F:\\audios\\pontebarbon-7a8ae86045da.json")))
-                .build();
-
-        try(SpeechClient speechClient = SpeechClient.create(settings)) {
-            byte[] data = Files.readAllBytes(savedFile.toPath());
-
-            RecognitionAudio audio = RecognitionAudio.newBuilder()
-                    .setContent(ByteString.copyFrom(data))
-                    .build();
-
-            RecognitionConfig conf = RecognitionConfig.newBuilder()
-                    .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                    .setSampleRateHertz(48000)
-                    .setLanguageCode("es-PE")
-                    .build();
-
-            RecognizeResponse response = speechClient.recognize(conf,audio);
-
-            String transcript = response.getResultsList().stream()
-                    .flatMap(r -> r.getAlternativesList().stream())
-                    .map(SpeechRecognitionAlternative::getTranscript)
-                    .collect(Collectors.joining(" "));
-
-            return ResponseEntity.ok("Texto reconocido: " + transcript);
-        }
+        return ResponseEntity.ok(expense);
 
     }
 
