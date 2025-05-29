@@ -1,8 +1,7 @@
-package com.ponteBarbon.servicio_finanzas.finances.application;
+package com.ponteBarbon.servicio_finanzas.finances.application.ExpenseService;
 
 
 import com.google.cloud.speech.v1.SpeechClient;
-import com.google.cloud.speech.v1.SpeechSettings;
 import com.ponteBarbon.servicio_finanzas.finances.application.outBoundedService.googleAuth.GoogleAuthService;
 import com.ponteBarbon.servicio_finanzas.finances.application.outBoundedService.googleSpeechToText.GoogleSpeechToTextService;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.aggregates.Expense;
@@ -15,7 +14,6 @@ import com.ponteBarbon.servicio_finanzas.finances.infrastructure.persistance.JPA
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
