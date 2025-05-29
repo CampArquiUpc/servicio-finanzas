@@ -81,7 +81,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
 
-        var authGoogle = googleAuthService.settings(new FileInputStream("F:\\audios\\pontebarbon-a4bd39860683.json"));
+        var authGoogle = googleAuthService.settingsSpeechToText(new FileInputStream("/media/brayan/Unidad 2/audios/pontebarbon-a4bd39860683.json"));
 
         try(SpeechClient speechClient = SpeechClient.create(authGoogle)) {
 
