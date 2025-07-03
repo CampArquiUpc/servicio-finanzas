@@ -7,11 +7,11 @@ public class ExpenseResourceFromEntityAssembler {
     public static ExpenseResource toResourceFromEntity(Expense entity) {
         return new ExpenseResource(
                 entity.getId(),
-                entity.getIdUser(),
                 entity.getDescription(),
-                entity.getType().toString(),
+                entity.getType() != null ? entity.getType().toString() : null,
                 entity.getAmount(),
-                entity.getDateOfExpense()
+                entity.getDateOfExpense(),
+                entity.getIdUser()
         );
 
     }

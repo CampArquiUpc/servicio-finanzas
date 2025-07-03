@@ -1,20 +1,17 @@
 package com.ponteBarbon.servicio_finanzas.finances.application.ExpenseService;
 
 
-import com.google.cloud.speech.v1.SpeechClient;
-import com.ponteBarbon.servicio_finanzas.finances.application.outBoundedService.googleAuth.GoogleAuthService;
-import com.ponteBarbon.servicio_finanzas.finances.application.outBoundedService.googleSpeechToText.GoogleSpeechToTextService;
+
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.aggregates.Expense;
-import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.CreateExpenseCommand;
-import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.CreateExpensebyAudioCommand;
+import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.*;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpenseByIdQuery;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpenseByIdUserQuery;
+import com.ponteBarbon.servicio_finanzas.finances.domain.model.valueObjects.ExpenseType;
 import com.ponteBarbon.servicio_finanzas.finances.domain.service.ExpenseService;
 import com.ponteBarbon.servicio_finanzas.finances.infrastructure.persistance.JPA.ExpenseRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,21 +19,19 @@ import java.util.Optional;
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseRepository expenseRepository;
-    private final GoogleAuthService googleAuthService;
-    private final GoogleSpeechToTextService googleSpeechToTextService;
 
 
-    public ExpenseServiceImpl(ExpenseRepository expenseRepository, GoogleAuthService googleAuthService, GoogleSpeechToTextService googleSpeechToTextService) {
+
+    public ExpenseServiceImpl(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
-        this.googleAuthService = googleAuthService;
-        this.googleSpeechToTextService = googleSpeechToTextService;
+
     }
 
 
     @Override
     public List<Expense> handle(GetExpenseByIdUserQuery query) {
-
-        return expenseRepository.findAll();
+    // Verificamos si el usuario existe
+        return expenseRepository.getExpenseByIdUser(query.idUser());
     }
 
     @Override
@@ -66,29 +61,33 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public String handle(CreateExpensebyAudioCommand command) throws IOException {
-
-        String typeData = command.data().getContentType();
-
-        if(typeData == null || !typeData.equals("audio/wav") && !typeData.equals("audio/x-wav")){
-            throw new IllegalArgumentException("El Tipo de Audio no esta permitido tiene que ser wav");
+    public void hanlde(DeleteExpenseCommandById command) {
+        if(!expenseRepository.existsById(command.idExpense())) {
+            throw new IllegalArgumentException("Expense with id " + command.idExpense() + " does not exist.");
         }
-
-
-        var fileBytes = command.data().getBytes();
-
-
-
-        var authGoogle = googleAuthService.settingsSpeechToText(new FileInputStream("/media/brayan/Unidad 2/audios/pontebarbon-a4bd39860683.json"));
-
-        try(SpeechClient speechClient = SpeechClient.create(authGoogle)) {
-
-            var audio = googleSpeechToTextService.audio(fileBytes);
-            var conf = googleSpeechToTextService.conf(48000,"es-Pe");
-            var response = googleSpeechToTextService.response(speechClient,conf,audio);
-
-            return googleSpeechToTextService.transcription(response);
-        }
-
+        expenseRepository.deleteById(command.idExpense());
     }
+
+    @Override
+    public Optional<Expense> handle(UpdateExpenseCommandById command) {
+        if(!expenseRepository.existsById(command.id())) {
+            throw new IllegalArgumentException("Expense with id " + command.id() + " does not exist.");
+        }
+        //Nueva instancia de Expense con los datos actualizados
+        var expense = expenseRepository.getExpenseById(command.id()).get();
+
+        expense.setDescription(command.description());
+        expense.setType(ExpenseType.valueOf(command.type()));
+        expense.setAmount(command.amount());
+        expense.setDateOfExpense(command.dateOfExpense());
+
+        var result = expenseRepository.save(expense);
+
+
+        return Optional.of(result);
+    }
+
+
+
+
 }

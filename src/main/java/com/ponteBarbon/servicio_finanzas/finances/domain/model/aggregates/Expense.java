@@ -22,10 +22,16 @@ public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Setter
     private String description;
+    @Setter
     private ExpenseType type;
+    @Setter
     private Double amount;
+    @Setter
     private Date dateOfExpense;
+
     private Long idUser;
 
     public Expense() {}

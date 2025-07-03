@@ -1,15 +1,14 @@
 package com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.controller;
 
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.speech.v1.*;
 
-import com.google.protobuf.ByteString;
-import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.CreateExpenseCommand;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.CreateExpensebyAudioCommand;
+import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.DeleteExpenseCommandById;
+import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.UpdateExpenseCommandById;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpenseByIdQuery;
 import com.ponteBarbon.servicio_finanzas.finances.domain.service.ExpenseService;
 import com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.resource.CreateExpenseResource;
 import com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.resource.ExpenseResource;
+import com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.resource.UpdateExpenseResource;
 import com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.transform.CreateExpenseCommandFromResourceAssembler;
 import com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.transform.ExpenseResourceFromEntityAssembler;
 import org.springframework.http.MediaType;
@@ -36,18 +35,6 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
-    @PostMapping(value = "/audio",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        public ResponseEntity<String> AddedExpenseByAudio(
-            @RequestPart("file") MultipartFile file
-    ) throws IOException {
-
-        var createExpenseByAudioCommand = new CreateExpensebyAudioCommand(file);
-
-        var expense = expenseService.handle(createExpenseByAudioCommand);
-
-        return ResponseEntity.ok(expense);
-
-    }
 
     @PostMapping
     public ResponseEntity<ExpenseResource> AddedExpense(@RequestBody CreateExpenseResource resource){
@@ -76,5 +63,29 @@ public class ExpenseController {
         var expenseResource = ExpenseResourceFromEntityAssembler.toResourceFromEntity(expense.get());
 
         return ResponseEntity.ok(expenseResource);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ExpenseResource> UpdateExpenseById(@PathVariable Long id, @RequestBody UpdateExpenseResource resource){
+        var updateExpenseCommandById = new UpdateExpenseCommandById(
+                id,
+                resource.description(),
+                resource.type(),
+                resource.amount(),
+                resource.dateOfExpense());
+
+        var updatedExpense = expenseService.handle(updateExpenseCommandById);
+        if (updatedExpense.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        var expenseResource = ExpenseResourceFromEntityAssembler.toResourceFromEntity(updatedExpense.get());
+        return ResponseEntity.ok(expenseResource);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> DeleteExpenseById(@PathVariable Long id){
+        var deleteExpenseCommandById = new DeleteExpenseCommandById(id);
+        expenseService.hanlde(deleteExpenseCommandById);
+        return ResponseEntity.ok("Expense delete given id successfully");
     }
 }
