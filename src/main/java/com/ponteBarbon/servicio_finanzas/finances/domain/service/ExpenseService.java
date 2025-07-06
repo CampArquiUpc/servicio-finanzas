@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface ExpenseService {
     List<Expense> handle(GetExpenseByIdUserQuery query);
 
-    Long handle(CreateExpenseCommand command);
+    Long handle(CreateExpenseCommand command, Long userId);
 
     Optional<Expense> handle(GetExpenseByIdQuery query);
 

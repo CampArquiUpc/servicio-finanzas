@@ -1,10 +1,7 @@
 package com.ponteBarbon.servicio_finanzas.finances.domain.model.aggregates;
 
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.valueObjects.ExpenseType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,17 +29,19 @@ public class Expense {
     @Setter
     private Date dateOfExpense;
 
-    private Long idUser;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Expense() {}
 
 
-    public Expense(String description, String type, Double amount, Date dateOfExpense) {
+    public Expense(String description, String type, Double amount, Date dateOfExpense, User user) {
         this.description = description;
         this.type = ExpenseType.valueOf(type) ;
         this.amount = amount;
         this.dateOfExpense = dateOfExpense;
-        this.idUser = 0L;
+        this.user = user;
     }
 
 }
