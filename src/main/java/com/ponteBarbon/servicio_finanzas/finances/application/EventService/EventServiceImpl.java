@@ -31,7 +31,7 @@ public class EventServiceImpl implements EventService {
                     event.getAmount(),
                     new Date() // O ajusta si tienes la fecha en el evento
                 );
-                expenseService.handle(command);
+                expenseService.handle(command, 1L); //TODO: Default userId, ajustar según tu lógica de negocio
             }
             case UPDATE -> {
                 // Obtenemos el gasto a actualizar para comparar y actualizar

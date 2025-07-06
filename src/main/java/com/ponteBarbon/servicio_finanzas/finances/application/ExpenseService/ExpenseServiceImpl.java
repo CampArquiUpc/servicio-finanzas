@@ -9,6 +9,7 @@ import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpens
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.valueObjects.ExpenseType;
 import com.ponteBarbon.servicio_finanzas.finances.domain.service.ExpenseService;
 import com.ponteBarbon.servicio_finanzas.finances.infrastructure.persistance.JPA.ExpenseRepository;
+import com.ponteBarbon.servicio_finanzas.finances.infrastructure.persistance.JPA.UserRepository;
 import org.springframework.stereotype.Service;
 
 
@@ -19,30 +20,35 @@ import java.util.Optional;
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
     private final ExpenseRepository expenseRepository;
+    private final UserRepository userRepository;
 
-
-
-    public ExpenseServiceImpl(ExpenseRepository expenseRepository) {
+    public ExpenseServiceImpl(ExpenseRepository expenseRepository, UserRepository userRepository) {
         this.expenseRepository = expenseRepository;
-
+        this.userRepository = userRepository;
     }
 
 
     @Override
     public List<Expense> handle(GetExpenseByIdUserQuery query) {
     // Verificamos si el usuario existe
-        return expenseRepository.getExpenseByIdUser(query.idUser());
+        return expenseRepository.findByUser_Id(query.idUser());
     }
 
     @Override
-    public Long handle(CreateExpenseCommand command) {
-
+    public Long handle(CreateExpenseCommand command, Long userId) {
+        // Verificamos si el usuario existe
+        var userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            throw new IllegalArgumentException("User with id " + userId + " does not exist.");
+        }
         try{
             Expense expense = new Expense(
                     command.description(),
                     command.type(),
                     command.amount(),
-                    command.dateOfExpense());
+                    command.dateOfExpense(),
+                    userOpt.get()
+            );
             expenseRepository.save(expense);
             return expense.getId();
         } catch(Exception e){
@@ -57,7 +63,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public Optional<Expense> handle(GetExpenseByIdQuery query) {
 
-        return expenseRepository.getExpenseById(query.id());
+        return expenseRepository.findById(query.id());
     }
 
     @Override
@@ -74,7 +80,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new IllegalArgumentException("Expense with id " + command.id() + " does not exist.");
         }
         //Nueva instancia de Expense con los datos actualizados
-        var expense = expenseRepository.getExpenseById(command.id()).get();
+        var expense = expenseRepository.findById(command.id()).get();
 
         expense.setDescription(command.description());
         expense.setType(ExpenseType.valueOf(command.type()));
