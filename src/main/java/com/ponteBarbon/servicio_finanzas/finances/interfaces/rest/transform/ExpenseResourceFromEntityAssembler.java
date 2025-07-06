@@ -11,7 +11,7 @@ public class ExpenseResourceFromEntityAssembler {
                 entity.getType() != null ? entity.getType().toString() : null,
                 entity.getAmount(),
                 entity.getDateOfExpense(),
-                entity.getIdUser()
+                entity.getId()
         );
 
     }
