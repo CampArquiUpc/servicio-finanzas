@@ -40,7 +40,7 @@ public class ExpenseController {
     public ResponseEntity<ExpenseResource> AddedExpense(@RequestBody CreateExpenseResource resource){
         var createExpenseCommand =
                 CreateExpenseCommandFromResourceAssembler.toCommandFromResource(resource);
-        var expenseId = expenseService.handle(createExpenseCommand);
+        var expenseId = expenseService.handle(createExpenseCommand, 1L);
 
         if (expenseId == 0L) return ResponseEntity.notFound().build();
 
