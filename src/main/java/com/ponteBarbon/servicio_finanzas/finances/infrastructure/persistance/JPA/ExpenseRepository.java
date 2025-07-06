@@ -11,11 +11,11 @@ import java.util.Optional;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense,Long> {
-    List<Expense> getExpenseByIdUser(Long idUser);
+    List<Expense> findByUser_Id(Long userId);
 
-    Optional<Expense> getExpenseById(Long id);
+    Optional<Expense> findById(Long id);
 
     boolean existsById(Long id);
 
-    boolean existsByIdUser(Long idUser);
+    boolean existsByUser_Id(Long userId);
 }
