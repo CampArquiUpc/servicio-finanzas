@@ -23,6 +23,7 @@ public class Expense {
     @Setter
     private String description;
     @Setter
+    @Enumerated(EnumType.ORDINAL)
     private ExpenseType type;
     @Setter
     private Double amount;

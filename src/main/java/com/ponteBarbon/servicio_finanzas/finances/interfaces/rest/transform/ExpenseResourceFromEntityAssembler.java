@@ -5,14 +5,13 @@ import com.ponteBarbon.servicio_finanzas.finances.interfaces.rest.resource.Expen
 
 public class ExpenseResourceFromEntityAssembler {
     public static ExpenseResource toResourceFromEntity(Expense entity) {
-        return new ExpenseResource(
-                entity.getId(),
-                entity.getDescription(),
-                entity.getType() != null ? entity.getType().toString() : null,
-                entity.getAmount(),
-                entity.getDateOfExpense(),
-                entity.getId()
-        );
-
+        ExpenseResource resource = new ExpenseResource();
+        resource.setId(entity.getId());
+        resource.setDescription(entity.getDescription());
+        resource.setType(entity.getType() != null ? entity.getType().toString() : null);
+        resource.setAmount(entity.getAmount());
+        resource.setDateOfExpense(entity.getDateOfExpense());
+        resource.setUserId(entity.getUser().getId());
+        return resource;
     }
 }

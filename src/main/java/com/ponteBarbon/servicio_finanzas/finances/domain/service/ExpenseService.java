@@ -22,5 +22,5 @@ public interface ExpenseService {
 
     Optional<Expense> handle(UpdateExpenseCommandById command);
 
-
+    List<Expense> handle(com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpensesByUserIdQuery query);
 }

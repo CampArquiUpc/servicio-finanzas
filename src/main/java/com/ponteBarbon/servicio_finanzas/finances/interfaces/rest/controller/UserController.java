@@ -148,4 +148,13 @@ public class UserController {
         Long id = expenseService.handle(command, userId);
         return new ResponseEntity<>(id, HttpStatus.CREATED);
     }
+
+    @Operation(summary = "Obtener gastos por usuario", description = "Devuelve la lista de gastos (expenses) para el usuario indicado.")
+    @ApiResponse(responseCode = "200", description = "Lista de gastos obtenida exitosamente")
+    @GetMapping("/{userId}/expenses")
+    public ResponseEntity<List<ExpenseResource>> getExpenses(@PathVariable Long userId) {
+        var expenses = expenseService.handle(new GetExpensesByUserIdQuery(userId));
+        var resources = expenses.stream().map(ExpenseResourceAssembler::toResource).collect(Collectors.toList());
+        return ResponseEntity.ok(resources);
+    }
 }

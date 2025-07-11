@@ -6,6 +6,7 @@ import com.ponteBarbon.servicio_finanzas.finances.domain.model.aggregates.Expens
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.commands.*;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpenseByIdQuery;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpenseByIdUserQuery;
+import com.ponteBarbon.servicio_finanzas.finances.domain.model.queries.GetExpensesByUserIdQuery;
 import com.ponteBarbon.servicio_finanzas.finances.domain.model.valueObjects.ExpenseType;
 import com.ponteBarbon.servicio_finanzas.finances.domain.service.ExpenseService;
 import com.ponteBarbon.servicio_finanzas.finances.infrastructure.persistance.JPA.ExpenseRepository;
@@ -91,6 +92,11 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
         return Optional.of(result);
+    }
+
+    @Override
+    public List<Expense> handle(GetExpensesByUserIdQuery query) {
+        return expenseRepository.findByUser_Id(query.getUserId());
     }
 
 
